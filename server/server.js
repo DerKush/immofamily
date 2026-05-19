@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
+//const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -18,13 +18,6 @@ app.use('/api/locataires', require('./routes/locataires'));
 app.use('/api/paiements',  require('./routes/paiements'));
 app.use('/api/rapports',   require('./routes/rapports'));
 
-// Production : servir le build React
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../client/dist')));
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
-  });
-}
 
 app.listen(PORT, () => {
   console.log(`\n🏘  ImmoFamily API démarrée sur http://localhost:${PORT}`);
