@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import Sidebar from './components/Layout/Sidebar';
+import { DateProvider }          from './context/DateContext';
+import Sidebar    from './components/Layout/Sidebar';
 import Login      from './pages/Login';
 import Dashboard  from './pages/Dashboard';
 import Biens      from './pages/Biens';
@@ -36,14 +37,16 @@ function AppLayout() {
 export default function App() {
   return (
     <AuthProvider>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/*" element={
-          <PrivateRoute>
-            <AppLayout />
-          </PrivateRoute>
-        } />
-      </Routes>
+      <DateProvider>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/*" element={
+            <PrivateRoute>
+              <AppLayout />
+            </PrivateRoute>
+          } />
+        </Routes>
+      </DateProvider>
     </AuthProvider>
   );
 }
