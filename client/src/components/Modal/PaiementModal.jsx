@@ -1,13 +1,34 @@
 import { useState, useEffect } from 'react';
 
 const MODES = ['Espèces','Virement','Mobile Money','Chèque','Orange Money','Wave'];
-const EMPTY = { locataire_id:'', bien_id:'', montant:'', date_paiement:'', mode:'Mobile Money', statut:'paye', mois:5, annee:2025, notes:'' };
 
-export default function PaiementModal({ open, onClose, onSave, locataires }) {
-  const [form, setForm] = useState(EMPTY);
+function makeEmpty(moisDefaut, anneeDefaut) {
+  const now = new Date();
+  return {
+    locataire_id: '',
+    bien_id:      '',
+    montant:      '',
+    date_paiement: now.toISOString().split('T')[0],
+    mode:         'Mobile Money',
+    statut:       'paye',
+    mois:         moisDefaut  || now.getMonth() + 1,
+    annee:        anneeDefaut || now.getFullYear(),
+    notes:        '',
+  };
+}
+
+export default function PaiementModal({ open, onClose, onSave, locataires, moisDefaut, anneeDefaut }) {
+  const [form, setForm]       = useState(() => makeEmpty(moisDefaut, anneeDefaut));
   const [loading, setLoading] = useState(false);
+  const [err, setErr]         = useState('');
 
-  useEffect(() => { setForm(EMPTY); }, [open]);
+  // Réinitialise le formulaire à chaque ouverture avec la bonne période
+  useEffect(() => {
+    if (open) {
+      setForm(makeEmpty(moisDefaut, anneeDefaut));
+      setErr('');
+    }
+  }, [open, moisDefaut, anneeDefaut]);
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
@@ -17,13 +38,23 @@ export default function PaiementModal({ open, onClose, onSave, locataires }) {
   };
 
   const handleSave = async () => {
-    if (!form.locataire_id || !form.montant) return alert('Locataire et montant requis');
+    if (!form.locataire_id || !form.montant) {
+      setErr('Veuillez sélectionner un locataire et saisir un montant.');
+      return;
+    }
     setLoading(true);
-    await onSave({ ...form, montant: Number(form.montant) });
-    setLoading(false);
+    setErr('');
+    try {
+      await onSave({ ...form, montant: Number(form.montant) });
+    } catch {
+      setErr('Une erreur est survenue lors de l\'enregistrement.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!open) return null;
+
   return (
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="modal-box">
@@ -31,6 +62,16 @@ export default function PaiementModal({ open, onClose, onSave, locataires }) {
           <div className="modal-title">Enregistrer un paiement</div>
           <button className="modal-close" onClick={onClose}>✕</button>
         </div>
+
+        {err && (
+          <div style={{
+            background: '#fdecea', border: '1px solid #f5c6c4',
+            borderRadius: 7, padding: '9px 12px', marginBottom: 14,
+            fontSize: 13, color: 'var(--red)',
+          }}>
+            ⚠️ {err}
+          </div>
+        )}
 
         <div className="form-group">
           <label className="form-label">Locataire *</label>
@@ -45,11 +86,13 @@ export default function PaiementModal({ open, onClose, onSave, locataires }) {
         <div className="form-row">
           <div className="form-group">
             <label className="form-label">Montant (FCFA) *</label>
-            <input className="form-input" type="number" value={form.montant} onChange={e => set('montant', e.target.value)} placeholder="150000" />
+            <input className="form-input" type="number" value={form.montant}
+              onChange={e => set('montant', e.target.value)} placeholder="150 000" />
           </div>
           <div className="form-group">
             <label className="form-label">Date de paiement</label>
-            <input className="form-input" type="date" value={form.date_paiement} onChange={e => set('date_paiement', e.target.value)} />
+            <input className="form-input" type="date" value={form.date_paiement}
+              onChange={e => set('date_paiement', e.target.value)} />
           </div>
         </div>
 
@@ -73,26 +116,31 @@ export default function PaiementModal({ open, onClose, onSave, locataires }) {
         <div className="form-row">
           <div className="form-group">
             <label className="form-label">Mois</label>
-            <select className="form-input" value={form.mois} onChange={e => set('mois', e.target.value)}>
-              {['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre']
+            <select className="form-input" value={form.mois} onChange={e => set('mois', Number(e.target.value))}>
+              {['Janvier','Février','Mars','Avril','Mai','Juin',
+                'Juillet','Août','Septembre','Octobre','Novembre','Décembre']
                 .map((m, i) => <option key={i+1} value={i+1}>{m}</option>)}
             </select>
           </div>
           <div className="form-group">
             <label className="form-label">Année</label>
-            <input className="form-input" type="number" value={form.annee} onChange={e => set('annee', e.target.value)} />
+            <input className="form-input" type="number" value={form.annee}
+              onChange={e => set('annee', Number(e.target.value))}
+              min="2020" max="2030" />
           </div>
         </div>
 
         <div className="form-group">
           <label className="form-label">Notes (optionnel)</label>
-          <textarea className="form-input" rows={2} value={form.notes} onChange={e => set('notes', e.target.value)} placeholder="Paiement partiel, avance sur loyer, etc." />
+          <textarea className="form-input" rows={2} value={form.notes}
+            onChange={e => set('notes', e.target.value)}
+            placeholder="Paiement partiel, avance sur loyer…" />
         </div>
 
         <div className="modal-actions">
           <button className="btn btn-outline" onClick={onClose}>Annuler</button>
           <button className="btn btn-primary" onClick={handleSave} disabled={loading}>
-            {loading ? 'Enregistrement...' : '✓ Enregistrer'}
+            {loading ? 'Enregistrement…' : '✓ Enregistrer'}
           </button>
         </div>
       </div>
