@@ -17,7 +17,7 @@ app.use('/api/biens',      require('./routes/biens'));
 app.use('/api/locataires', require('./routes/locataires'));
 app.use('/api/paiements',  require('./routes/paiements'));
 app.use('/api/rapports',   require('./routes/rapports'));
-
+  
 
 app.listen(PORT, () => {
   console.log(`\n🏘  ImmoFamily API démarrée sur http://localhost:${PORT}`);
