@@ -1,8 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth }   from './context/AuthContext';
-import { DateProvider }            from './context/DateContext';
-import { useKeyboardDate }         from './hooks/useKeyboardDate';
-import ImpayesBanner from './components/ImpayesBanner';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { DateProvider }          from './context/DateContext';
 import Sidebar    from './components/Layout/Sidebar';
 import Login      from './pages/Login';
 import Dashboard  from './pages/Dashboard';
@@ -17,18 +15,15 @@ import Membres    from './pages/Membres';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
-  if (loading) return <div className="loading" style={{ height:'100vh' }}>⏳ Chargement...</div>;
+  if (loading) return <div className="loading" style={{ height: '100vh' }}>⏳ Chargement...</div>;
   return user ? children : <Navigate to="/login" replace />;
 }
-
-function KeyboardDateBridge() { useKeyboardDate(); return null; }
 
 function AppLayout() {
   return (
     <div className="app-layout">
       <Sidebar />
       <div className="main-area">
-        <ImpayesBanner />
         <Routes>
           <Route path="/"            element={<Dashboard />} />
           <Route path="/biens"       element={<Biens />} />
@@ -49,11 +44,12 @@ export default function App() {
   return (
     <AuthProvider>
       <DateProvider>
-        <KeyboardDateBridge />
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/*" element={
-            <PrivateRoute><AppLayout /></PrivateRoute>
+            <PrivateRoute>
+              <AppLayout />
+            </PrivateRoute>
           } />
         </Routes>
       </DateProvider>

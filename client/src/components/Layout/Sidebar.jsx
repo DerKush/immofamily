@@ -1,148 +1,107 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
-const NAV = [
-  {
-    section: 'Immobilier',
-    items: [
-      { to: '/',           label: 'Tableau de bord',   icon: '▦' },
-      { to: '/biens',      label: 'Mes biens',          icon: '⌂' },
-      { to: '/carte',      label: 'Carte interactive',  icon: '◎' },
-    ],
-  },
-  {
-    section: 'Gestion',
-    items: [
-      { to: '/locataires', label: 'Locataires',         icon: '⊕' },
-      { to: '/paiements',  label: 'Paiements',          icon: '◈', dot: true },
-    ],
-  },
-  {
-    section: 'Finances',
-    items: [
-      { to: '/tresorerie', label: 'Trésorerie',         icon: '💰' },
-      { to: '/depenses',   label: 'Dépenses',           icon: '💸' },
-      { to: '/membres',    label: 'Membres & Parts',    icon: '👥' },
-    ],
-  },
-  {
-    section: 'Rapports',
-    items: [
-      { to: '/rapports',   label: 'Rapports mensuels',  icon: '◉' },
-    ],
-  },
+const NAVITEMS = [
+  { to: '/',           label: 'Tableau de bord',   icon: '📊', section: 'Principal' },
+  { to: '/biens',      label: 'Biens immobiliers',  icon: '🏠' },
+  { to: '/carte',      label: 'Carte interactive',  icon: '🗺️' },
+  { to: '/locataires', label: 'Locataires',         icon: '👥', section: 'Gestion' },
+  { to: '/paiements',  label: 'Loyers & Paiements', icon: '💰', dot: true },
+  { to: '/tresorerie', label: 'Trésorerie',         icon: '🏦', section: 'Finances' },
+  { to: '/depenses',   label: 'Dépenses',           icon: '💸' },
+  { to: '/membres',    label: 'Membres & Parts',    icon: '🤝' },
+  { to: '/rapports',   label: 'Rapports',           icon: '📋', section: 'Rapports' },
 ];
 
 export default function Sidebar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const initials = user?.nom
-    ? user.nom.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
-    : 'FK';
+  const handleLogout = () => { logout(); navigate('/login'); };
 
   return (
     <aside style={{
       width: 'var(--sidebar-w)', minWidth: 'var(--sidebar-w)',
-      background: 'var(--surface)',
-      borderRight: '1px solid var(--border)',
-      display: 'flex', flexDirection: 'column',
+      background: 'var(--green)', display: 'flex', flexDirection: 'column',
     }}>
       {/* Logo */}
-      <div style={{
-        padding: '18px 16px 15px',
-        borderBottom: '1px solid var(--border)',
-        display: 'flex', alignItems: 'center', gap: 10,
-      }}>
-        <div style={{
-          width: 32, height: 32, background: 'var(--primary)',
-          borderRadius: 9, display: 'flex', alignItems: 'center',
-          justifyContent: 'center', flexShrink: 0,
-        }}>
-          <span style={{ fontSize: 16, color: '#fff' }}>⌂</span>
+      <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid rgba(255,255,255,.1)' }}>
+        <div style={{ fontFamily: "'Playfair Display', serif", color: '#fff', fontSize: 18, fontWeight: 600 }}>
+          🏘 ImmoFamily
         </div>
-        <div>
-          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>ImmoFamily</div>
-          <div style={{ fontSize: 10, color: 'var(--text-3)', marginTop: 1 }}>Abidjan · Patrimoine</div>
+        <div style={{ color: 'rgba(255,255,255,.45)', fontSize: 11, marginTop: 2 }}>
+          Gestion du patrimoine familial
         </div>
       </div>
 
       {/* Nav */}
-      <nav style={{ flex: 1, padding: '10px 8px', overflowY: 'auto' }}>
-        {NAV.map(group => (
-          <div key={group.section}>
-            <div style={{
-              fontSize: 9.5, fontWeight: 600, color: 'var(--text-3)',
-              textTransform: 'uppercase', letterSpacing: '0.9px',
-              padding: '12px 10px 4px',
-            }}>
-              {group.section}
-            </div>
-            {group.items.map(item => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.to === '/'}
-                style={({ isActive }) => ({
-                  display: 'flex', alignItems: 'center', gap: 9,
-                  padding: '8px 10px',
-                  borderRadius: 8, margin: '1px 0',
-                  borderLeft: `2px solid ${isActive ? 'var(--primary)' : 'transparent'}`,
-                  background: isActive ? 'var(--primary-soft)' : 'transparent',
-                  color: isActive ? 'var(--primary)' : 'var(--text-2)',
-                  fontSize: 13, fontWeight: isActive ? 500 : 400,
-                  textDecoration: 'none', transition: 'all 0.13s',
-                })}
-              >
-                <span style={{ fontSize: 15, width: 18, textAlign: 'center', flexShrink: 0 }}>{item.icon}</span>
-                {item.label}
-                {item.dot && (
-                  <span style={{
-                    marginLeft: 'auto', background: 'var(--danger)',
-                    color: '#fff', fontSize: 9, padding: '1px 5px',
-                    borderRadius: 10, fontWeight: 600,
-                  }}>3</span>
-                )}
-              </NavLink>
-            ))}
+      <nav style={{ flex: 1, padding: '12px 0', overflowY: 'auto' }}>
+        {NAVITEMS.map((item, i) => (
+          <div key={item.to}>
+            {item.section && (
+              <div style={{
+                padding: '10px 16px 4px',
+                fontSize: 10, fontWeight: 500,
+                color: 'rgba(255,255,255,.35)',
+                textTransform: 'uppercase', letterSpacing: '.8px',
+                marginTop: i > 0 ? 4 : 0,
+              }}>
+                {item.section}
+              </div>
+            )}
+            <NavLink
+              to={item.to}
+              end={item.to === '/'}
+              style={({ isActive }) => ({
+                display: 'flex', alignItems: 'center', gap: 10,
+                padding: '9px 16px', cursor: 'pointer',
+                color: isActive ? '#fff' : 'rgba(255,255,255,.65)',
+                fontSize: 13,
+                borderLeft: `3px solid ${isActive ? 'var(--gold)' : 'transparent'}`,
+                background: isActive ? 'rgba(255,255,255,.1)' : 'transparent',
+                fontWeight: isActive ? 500 : 400,
+                textDecoration: 'none', transition: 'all .15s',
+              })}
+            >
+              <span style={{ fontSize: 16 }}>{item.icon}</span>
+              {item.label}
+              {item.dot && (
+                <span style={{
+                  width: 7, height: 7, background: 'var(--terra)',
+                  borderRadius: '50%', marginLeft: 'auto',
+                }} />
+              )}
+            </NavLink>
           </div>
         ))}
       </nav>
 
-      {/* Footer */}
-      <div style={{ padding: '12px 10px', borderTop: '1px solid var(--border)' }}>
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 9,
-          padding: '9px 10px', borderRadius: 9,
-          background: 'var(--bg)',
-        }}>
-          <div style={{
-            width: 32, height: 32, borderRadius: '50%',
-            background: 'var(--primary)', display: 'flex',
-            alignItems: 'center', justifyContent: 'center',
-            fontSize: 12, fontWeight: 600, color: '#fff', flexShrink: 0,
+      {/* User footer */}
+      <div style={{ padding: 16, borderTop: '1px solid rgba(255,255,255,.1)' }}>
+        <div style={{ background: 'rgba(255,255,255,.08)', borderRadius: 8, padding: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <div style={{
+              width: 32, height: 32, borderRadius: '50%',
+              background: 'var(--gold)', display: 'flex', alignItems: 'center',
+              justifyContent: 'center', fontSize: 12, fontWeight: 500,
+              color: 'var(--green)', flexShrink: 0,
+            }}>
+              {user?.nom?.slice(0, 2).toUpperCase() || 'FK'}
+            </div>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 500, color: '#fff' }}>{user?.nom || 'Famille'}</div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,.4)' }}>
+                {user?.role === 'admin' ? 'Administrateur' : 'Membre'}
+              </div>
+            </div>
+          </div>
+          <button onClick={handleLogout} style={{
+            width: '100%', padding: '5px', borderRadius: 5,
+            background: 'rgba(255,255,255,.1)', border: 'none',
+            color: 'rgba(255,255,255,.6)', fontSize: 11, cursor: 'pointer',
           }}>
-            {initials}
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 12.5, fontWeight: 500, color: 'var(--text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {user?.nom || 'Famille Koné'}
-            </div>
-            <div style={{ fontSize: 10.5, color: 'var(--text-3)' }}>
-              {user?.role === 'admin' ? 'Administrateur' : 'Membre'}
-            </div>
-          </div>
-          <button
-            onClick={() => { logout(); navigate('/login'); }}
-            title="Déconnexion"
-            style={{
-              background: 'transparent', border: '1px solid var(--border)',
-              borderRadius: 6, width: 28, height: 28,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: 'var(--text-3)', fontSize: 13, cursor: 'pointer',
-              flexShrink: 0,
-            }}
-          >⏻</button>
+            Déconnexion
+          </button>
         </div>
       </div>
     </aside>
