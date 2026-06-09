@@ -7,23 +7,19 @@ const app  = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(cors({
-  origin: [
-    'https://moulayeimmobilier.netlify.app',
-    'http://localhost:5173',
-  ],
+  origin: ['https://moulayeimmobilier.netlify.app', 'http://localhost:5173'],
   credentials: true,
 }));
 app.use(express.json());
 
-// Routes API
 app.use('/api/auth',       require('./routes/auth'));
 app.use('/api/dashboard',  require('./routes/dashboard'));
 app.use('/api/biens',      require('./routes/biens'));
 app.use('/api/locataires', require('./routes/locataires'));
 app.use('/api/paiements',  require('./routes/paiements'));
 app.use('/api/rapports',   require('./routes/rapports'));
+app.use('/api/finances',   require('./routes/finances'));
 
-// Initialiser la DB puis démarrer le serveur
 initialize()
   .then(() => {
     app.listen(PORT, () => {
